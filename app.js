@@ -56,6 +56,25 @@ class App {
     this.btnStart.onclick = () => this.start();
     this.btnStop.onclick = () => this.stop();
     this.btnReset.onclick = () => this.reset();
+
+    // Notary interaction
+    const notary = $('notary-container');
+    const notaryImg = $('notary-img');
+    const notaryBubble = $('notary-bubble');
+    
+    if (notary) {
+      notary.onclick = () => {
+        const isNormal = notaryImg.src.includes('notary_normal');
+        notaryImg.src = isNormal ? 'notary_thumbs_up.png' : 'notary_normal.png';
+        
+        if (isNormal) {
+          const msgs = ["Onaylıyorum!", "Hile yoktur!", "Tamamen rastgele!", "Bilimsel kanıt!", "Noter tasdikli!"];
+          notaryBubble.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+          notaryBubble.classList.add('active');
+          setTimeout(() => notaryBubble.classList.remove('active'), 2000);
+        }
+      };
+    }
   }
 
   // ── Static values ──
