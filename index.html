@@ -145,36 +145,28 @@
     <section class="results-section" id="results-section" style="display:none;">
       <!-- Main Result -->
       <div class="result-highlight danger">
-        <div class="result-label">Simülasyon Ortalaması</div>
-        <div class="big-number green" id="res-avg">—</div>
+        <div class="result-label">Simülasyon Sonucu</div>
+        <div class="big-number green" id="res-val">—</div>
         <div class="result-desc">
-          kişi bu aralıktan ortalama kazandı — gerçek çekilişte: <strong style="color:var(--accent-red);">0</strong>
-        </div>
-      </div>
-
-      <div class="result-highlight">
-        <div class="result-label">Sıfır Sonucu Çıkan Simülasyon</div>
-        <div class="big-number red" id="res-zero-count">0</div>
-        <div class="result-desc">
-          simülasyonda bu aralıktan hiç kazanan çıkmadı (<span id="res-zero-pct">0</span>%)
+          aday bu aralıktan kazandı — gerçek çekilişte: <strong style="color:var(--accent-red);">0</strong>
         </div>
       </div>
 
       <div class="results-grid">
         <div class="result-card">
-          <h3>📊 İstatistikler</h3>
-          <div class="prob-row"><span class="prob-label">Minimum</span><span class="prob-value" id="res-min"
-              style="color:var(--accent-red)">—</span></div>
-          <div class="prob-row"><span class="prob-label">Maksimum</span><span class="prob-value" id="res-max"
-              style="color:var(--accent-green)">—</span></div>
-          <div class="prob-row"><span class="prob-label">Medyan</span><span class="prob-value" id="res-median"
-              style="color:var(--accent-blue)">—</span></div>
-          <div class="prob-row"><span class="prob-label">Std. Sapma</span><span class="prob-value" id="res-stddev"
-              style="color:var(--accent-amber)">—</span></div>
-          <div class="prob-row"><span class="prob-label">%5 Persantil</span><span class="prob-value"
-              id="res-p5">—</span></div>
-          <div class="prob-row"><span class="prob-label">%95 Persantil</span><span class="prob-value"
-              id="res-p95">—</span></div>
+          <h3>📊 Özet</h3>
+          <div class="prob-row">
+            <span class="prob-label">Simülasyon Çekimi</span>
+            <span class="prob-value" id="res-draw-count" style="color:var(--accent-blue)">—</span>
+          </div>
+          <div class="prob-row">
+            <span class="prob-label">Beklenen Kazanan</span>
+            <span class="prob-value" style="color:var(--accent-green)">~4.853</span>
+          </div>
+          <div class="prob-row">
+            <span class="prob-label">Gerçekleşen</span>
+            <span class="prob-value" id="res-actual-val" style="color:var(--accent-red)">—</span>
+          </div>
         </div>
 
         <div class="result-card">

@@ -187,18 +187,22 @@ class App {
       // Progress
       const pct = (drawn / total * 100);
       $('live-progress-fill').style.width = pct + '%';
-      $('live-progress-text').textContent = pct.toFixed(1) + '%';
+      $('live-progress-text').textContent = Math.floor(pct) + '%';
 
-      // Stream (keep last ~200 for performance)
+      // Stream (keep last 150 for performance)
       if (batchHtml) {
         this.numberStream.insertAdjacentHTML('beforeend', batchHtml);
-        const children = this.numberStream.children;
-        while (children.length > 300) children[0].remove();
+        if (this.numberStream.children.length > 200) {
+          const toRemove = this.numberStream.children.length - 200;
+          for (let i = 0; i < toRemove; i++) {
+            this.numberStream.removeChild(this.numberStream.firstChild);
+          }
+        }
         this.numberStream.scrollTop = this.numberStream.scrollHeight;
       }
 
       if (delayMs > 0) await sleep(delayMs);
-      else await sleep(0); // yield
+      else if (drawn % 5000 === 0) await sleep(0); // Yield less frequently on max speed for better perf
     }
 
     // Flash final state
@@ -228,39 +232,21 @@ class App {
   // ── Final results ──
   showFinalResults() {
     const results = this.allResults;
-    const hits = results.map(r => r.hitsInRange);
-    const total = hits.length;
-    const sum = hits.reduce((a, b) => a + b, 0);
-    const avg = sum / total;
-    const min = Math.min(...hits);
-    const max = Math.max(...hits);
-    const zeroCount = hits.filter(h => h === 0).length;
-    const variance = hits.reduce((acc, h) => acc + (h - avg) ** 2, 0) / total;
-    const stdDev = Math.sqrt(variance);
-    const sorted = [...hits].sort((a, b) => a - b);
-    const median = sorted[Math.floor(total / 2)];
-    const p5 = sorted[Math.floor(total * 0.05)];
-    const p95 = sorted[Math.floor(total * 0.95)];
-
+    const lastResult = results[results.length - 1];
+    const val = lastResult.hitsInRange;
     const expected = CONFIG.EXPECTED_FROM_RANGE;
 
-    $('res-avg').textContent = fmtD(avg, 1);
-    $('res-zero-count').textContent = fmt(zeroCount);
-    $('res-zero-pct').textContent = fmtD((zeroCount / total) * 100, 4);
-    $('res-min').textContent = fmt(min);
-    $('res-max').textContent = fmt(max);
-    $('res-median').textContent = fmt(median);
-    $('res-stddev').textContent = fmtD(stdDev, 2);
-    $('res-p5').textContent = fmt(p5);
-    $('res-p95').textContent = fmt(p95);
+    $('res-val').textContent = fmt(val);
+    $('res-draw-count').textContent = fmt(lastResult.drawCount);
+    $('res-actual-val').textContent = fmt(val);
 
     // Bars
-    const maxVal = Math.max(expected, avg, 1);
+    const maxVal = Math.max(expected, val, 1);
     const sc = v => Math.max(2, (v / maxVal) * 100);
     $('bar-expected').style.width = sc(expected) + '%';
     $('bar-expected-val').textContent = fmtD(expected, 0);
-    $('bar-sim').style.width = sc(avg) + '%';
-    $('bar-sim-val').textContent = fmtD(avg, 1);
+    $('bar-sim').style.width = sc(val) + '%';
+    $('bar-sim-val').textContent = fmtD(val, 1);
     $('bar-actual').style.width = sc(0) + '%';
     $('bar-actual-val').textContent = '0';
 
@@ -274,10 +260,14 @@ class App {
     $('verdict-sigma').textContent = 'Fark = ' + fmtD(sSigma, 1) + 'σ';
 
     const vt = $('verdict-text');
-    if (zeroCount === 0) {
-      vt.innerHTML = `<strong>${fmt(total)}</strong> simülasyonun <strong>hiçbirinde</strong> bu aralıktan sıfır kazanan çıkmadı. Her simülasyonda ortalama <strong>${fmtD(avg, 1)}</strong> kişi bu aralıktan kazandı. Minimum bile <strong>${fmt(min)}</strong> kişiydi.<br><br>Gerçek çekilişte bu aralıktan <strong>0 kişinin</strong> kazanması istatistiksel olarak <strong>neredeyse imkânsızdır</strong>.`;
+    if (val > 0) {
+      vt.innerHTML = `Bu simülasyon sonucunda, belirlenen aralıktan <strong>${fmt(val)}</strong> aday kazandı. <br><br>
+        Oysa gerçek çekilişte bu aralıktan <strong>0 kişinin</strong> kazanmış olması, istatistiksel olarak beklenen 
+        <strong>${fmtD(expected, 1)}</strong> değerinden çok uzaktır ve gerçekleşme olasılığı neredeyse sıfırdır.`;
     } else {
-      vt.innerHTML = `<strong>${fmt(total)}</strong> simülasyonun yalnızca <strong>${fmt(zeroCount)}</strong> tanesinde sıfır sonucu çıktı (%${fmtD((zeroCount / total) * 100, 6)}). Ortalama <strong>${fmtD(avg, 1)}</strong> kişi bu aralıktan kazandı.<br><br>Gerçek çekilişte bu aralıktan <strong>0 kişinin</strong> kazanması istatistiksel olarak <strong>son derece düşük olasılıklıdır</strong>.`;
+      // This is extremely unlikely to happen in a fair simulation
+      vt.innerHTML = `Bu simülasyonda da 0 sonucu çıktı. Ancak bu durumun rastgele bir çekilişte gerçekleşme olasılığı 
+        astronomik düzeyde küçüktür (≈ 10<sup>-2108</sup>).`;
     }
 
     this.resultsSection.style.display = 'block';
