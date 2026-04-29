@@ -61,6 +61,7 @@ class App {
     const notary = $('notary-container');
     const notaryImg = $('notary-img');
     const notaryBubble = $('notary-bubble');
+    let lastMsgIndex = -1;
     
     if (notary) {
       notary.onclick = () => {
@@ -68,8 +69,14 @@ class App {
         notaryImg.src = isNormal ? 'notary_thumbs_up.png' : 'notary_normal.png';
         
         if (isNormal) {
-          const msgs = ["Onaylıyorum!", "Hile yoktur!", "Tamamen rastgele!", "Bilimsel kanıt!", "Noter tasdikli!"];
-          notaryBubble.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+          const msgs = ["Onaylıyorum!", "Hile yoktur!", "Tamamen rastgele!", "Bilimsel kanıt!", "Noter tasdikli!", "Her şey usulüne uygun!", "Gerçek bir çekiliş!"];
+          let newIdx;
+          do {
+            newIdx = Math.floor(Math.random() * msgs.length);
+          } while (newIdx === lastMsgIndex);
+          
+          lastMsgIndex = newIdx;
+          notaryBubble.textContent = msgs[newIdx];
           notaryBubble.classList.add('active');
           setTimeout(() => notaryBubble.classList.remove('active'), 2000);
         }
