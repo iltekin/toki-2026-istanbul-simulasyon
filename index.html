@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TOKİ 2026 İstanbul konut çekilişi istatistiksel simülasyonu. 1.072.660 aday arasından yapılan çekilişin rastgelelik analizi.">
+  <title>TOKİ 2026 İstanbul Çekiliş Simülasyonu — İstatistiksel Analiz</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+</head>
+<body>
+  <div class="bg-effect"></div>
+
+  <div class="container">
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        İstatistiksel Analiz
+      </div>
+      <h1>TOKİ 2026 İstanbul Çekiliş Simülasyonu</h1>
+      <p>955.068 – 1.072.660 aralığındaki 117.593 adaydan hiçbirinin kazanamaması ne kadar olası? Gerçek verilere dayalı Monte Carlo simülasyonu ile test edin.</p>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Toplam Aday</div>
+        <div class="value blue" id="stat-total">—</div>
+        <div class="sub">Kayıtlı başvuru</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Birleşme Sonrası Çekim</div>
+        <div class="value amber" id="stat-draws">—</div>
+        <div class="sub">55.739 → 100.000</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Dışlanan Aralık</div>
+        <div class="value red" id="stat-excluded">—</div>
+        <div class="sub">955.068 – 1.072.660</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Beklenen Kazanan</div>
+        <div class="value green" id="stat-expected">—</div>
+        <div class="sub">Bu aralıktan (teorik)</div>
+      </div>
+    </div>
+
+    <!-- ==================== LIVE SIMULATION ==================== -->
+    <section class="sim-section">
+      <h2><span class="icon">🧪</span> Canlı Simülasyon</h2>
+      <p class="sim-desc">
+        Her simülasyonda 1.072.660 aday arasından rastgele 44.261 numara çekilir (55.739. çekimden sonra). 955.068–1.072.660 aralığından kaç numaranın çıktığı sayılır.
+      </p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          Simülasyonu Başlat
+        </button>
+        
+        <div class="speed-control">
+          <label for="sim-speed">Hız:</label>
+          <select id="sim-speed">
+            <option value="0">Maksimum</option>
+            <option value="1">Hızlı</option>
+            <option value="2" selected>Orta</option>
+            <option value="3">Yavaş</option>
+          </select>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-stop" style="display:none;">
+          ⏹ Durdur
+        </button>
+        <button class="btn btn-secondary" id="btn-reset">
+          ↺ Sıfırla
+        </button>
+      </div>
+
+      <!-- LIVE DISPLAY -->
+      <div class="live-area" id="live-area" style="display:none;">
+
+
+        <!-- Live counters -->
+        <div class="live-counters">
+          <div class="live-counter">
+            <div class="lc-label">Çekilen</div>
+            <div class="lc-value" id="lc-drawn">0</div>
+            <div class="lc-sub">/ 44.261</div>
+          </div>
+          <div class="live-counter hit">
+            <div class="lc-label">Aralıkta ✓</div>
+            <div class="lc-value" id="lc-hits">0</div>
+            <div class="lc-sub">955.068 – 1.072.660</div>
+          </div>
+          <div class="live-counter miss">
+            <div class="lc-label">Aralık Dışı</div>
+            <div class="lc-value" id="lc-miss">0</div>
+            <div class="lc-sub">1 – 955.067</div>
+          </div>
+        </div>
+
+        <!-- Current number display -->
+        <div class="current-draw-wrapper">
+          <div class="current-draw-label">Son Çekilen Numara</div>
+          <div class="current-draw-number" id="current-number">—</div>
+          <div class="current-draw-status" id="current-status"></div>
+        </div>
+
+        <!-- Live progress -->
+        <div class="live-progress">
+          <div class="live-progress-bar">
+            <div class="live-progress-fill" id="live-progress-fill"></div>
+          </div>
+          <div class="live-progress-text" id="live-progress-text">0%</div>
+        </div>
+
+        <!-- Live number stream -->
+        <div class="number-stream" id="number-stream"></div>
+      </div>
+
+
+    </section>
+
+    <!-- ==================== RESULTS ==================== -->
+    <section class="results-section" id="results-section" style="display:none;">
+      <!-- Main Result -->
+      <div class="result-highlight danger">
+        <div class="result-label">Simülasyon Ortalaması</div>
+        <div class="big-number green" id="res-avg">—</div>
+        <div class="result-desc">
+          kişi bu aralıktan ortalama kazandı — gerçek çekilişte: <strong style="color:var(--accent-red);">0</strong>
+        </div>
+      </div>
+
+      <div class="result-highlight">
+        <div class="result-label">Sıfır Sonucu Çıkan Simülasyon</div>
+        <div class="big-number red" id="res-zero-count">0</div>
+        <div class="result-desc">
+          simülasyonda bu aralıktan hiç kazanan çıkmadı (<span id="res-zero-pct">0</span>%)
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card">
+          <h3>📊 İstatistikler</h3>
+          <div class="prob-row"><span class="prob-label">Minimum</span><span class="prob-value" id="res-min" style="color:var(--accent-red)">—</span></div>
+          <div class="prob-row"><span class="prob-label">Maksimum</span><span class="prob-value" id="res-max" style="color:var(--accent-green)">—</span></div>
+          <div class="prob-row"><span class="prob-label">Medyan</span><span class="prob-value" id="res-median" style="color:var(--accent-blue)">—</span></div>
+          <div class="prob-row"><span class="prob-label">Std. Sapma</span><span class="prob-value" id="res-stddev" style="color:var(--accent-amber)">—</span></div>
+          <div class="prob-row"><span class="prob-label">%5 Persantil</span><span class="prob-value" id="res-p5">—</span></div>
+          <div class="prob-row"><span class="prob-label">%95 Persantil</span><span class="prob-value" id="res-p95">—</span></div>
+        </div>
+
+        <div class="result-card">
+          <h3>📈 Karşılaştırma</h3>
+          <div class="bar-chart">
+            <div class="bar-row">
+              <span class="bar-label">Beklenen</span>
+              <div class="bar-track"><div class="bar-fill expected" id="bar-expected"><span id="bar-expected-val">—</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Simülasyon</span>
+              <div class="bar-track"><div class="bar-fill actual-sim" id="bar-sim"><span id="bar-sim-val">—</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Gerçek</span>
+              <div class="bar-track"><div class="bar-fill actual-real" id="bar-actual" style="min-width:40px;"><span id="bar-actual-val">0</span></div></div>
+            </div>
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px;text-align:center;">Bu aralıktan kazanan sayısı</p>
+        </div>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict-box">
+        <div class="verdict-icon">⚖️</div>
+        <h2>Bilimsel Değerlendirme</h2>
+        <p id="verdict-text">—</p>
+        <div style="margin-top:16px;">
+          <span class="sigma" id="verdict-expected">Beklenen ≈ 4.853</span>
+          <span class="sigma">Gerçekleşen = 0</span>
+          <span class="sigma" id="verdict-sigma">Fark = ∞σ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROBABILITY (bottom) ==================== -->
+    <section class="prob-section">
+      <h2><span class="icon">📐</span> Olasılık Hesabı</h2>
+      <div class="prob-row"><span class="prob-label">Dışlanan aralık büyüklüğü</span><span class="prob-value" id="prob-range-size" style="color:var(--accent-red)">—</span></div>
+      <div class="prob-row"><span class="prob-label">Aralığın toplam havuzdaki payı</span><span class="prob-value" id="prob-range-pct" style="color:var(--accent-amber)">—</span></div>
+      <div class="prob-row"><span class="prob-label">Birleşme sonrası çekim sayısı</span><span class="prob-value" id="prob-draw-count" style="color:var(--accent-blue)">—</span></div>
+      <div class="prob-row"><span class="prob-label">Bu aralıktan beklenen kazanan</span><span class="prob-value" id="prob-expected" style="color:var(--accent-green)">—</span></div>
+      <div class="formula-box">
+        <code>P(X = 0) = C(N−M, n) / C(N, n)</code><br>
+        <small style="color:var(--text-muted);">Hipergeometrik dağılım — bu aralıktan sıfır kişi çıkma olasılığı</small>
+        <div class="result">≈ 10<sup id="prob-p0-exp">?</sup></div>
+        <div style="margin-top:8px;">
+          <span style="color:var(--text-muted);font-size:0.8rem;">Sapma: </span>
+          <span id="prob-sigma" style="color:var(--accent-red);font-family:'JetBrains Mono',monospace;font-weight:700;">—</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Bu simülasyon tamamen bilimsel ve eğitim amaçlıdır. Veriler kamuya açık çekiliş sonuçlarından alınmıştır.</p>
+      <p style="margin-top:4px;">Monte Carlo Simülasyonu · Hipergeometrik Dağılım · Web Crypto API</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
